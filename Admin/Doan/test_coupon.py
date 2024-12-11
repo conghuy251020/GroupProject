@@ -35,18 +35,14 @@ def test_edit_to_coupon(driver):
     time.sleep(2)
     driver.find_element(By.XPATH, "//a[@href='http://127.0.0.1:8000/admin/coupon/edit/1']").click()
     time.sleep(2)
-    input_field = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "input[name='discount_percentage']"))
-    )
+    time.sleep(2)
+    input_field = driver.find_element(By.CSS_SELECTOR, "input[name='discount_percentage']")
     input_field.clear()
     input_field.send_keys("19")
-    update_button = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "button[type='submit'].btn.btn-primary.me-2"))
-    )
+    time.sleep(2)
+    update_button = driver.find_element(By.CSS_SELECTOR, "button[type='submit'].btn.btn-primary.me-2")
     update_button.click()
-
     time.sleep(3)
-
 
 
 
