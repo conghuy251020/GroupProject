@@ -49,7 +49,6 @@ def test_checkout_empty_address(driver):
 
     #main
     driver.find_element(By.XPATH, "//a[@href = '/cart']").click()
-    time.sleep(1)
     driver.find_element(By.XPATH, "//button[text() = 'Checkout']").click()
     time.sleep(1)
     driver.find_element(By.ID, "cod").click()
