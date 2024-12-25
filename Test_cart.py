@@ -13,6 +13,7 @@ def driver():
     yield driver
     driver.quit()
 
+
 def delete_all_product_in_cart(driver):
     driver.find_element(By.XPATH, "//a[@href = '/cart']").click()
     out_of_product = False
@@ -25,6 +26,7 @@ def delete_all_product_in_cart(driver):
             alert.accept()
         except NoSuchElementException:
             out_of_product = True
+
 
 def add_random_product(driver):
     driver.find_element(By.XPATH, "//a[text()='Home']").click()
@@ -41,7 +43,7 @@ def add_random_product(driver):
                 if bool(next((product_name for product_name in product_list.keys() if product_name == p_name), "")):
                     continue
             except AttributeError:
-                a=0
+                a = 0
             try:
                 add_button = tr_element.find_element(By.XPATH, ".//button[text() = 'Add to Cart']")
                 pick = True
@@ -53,9 +55,10 @@ def add_random_product(driver):
                 add_button.click()
                 product_list[p_name] = [price, quan]
             except NoSuchElementException:
-                a=0
+                a = 0
             time.sleep(1)
     return product_list
+
 
 # TC1
 def test_add_one_product(driver):
@@ -99,6 +102,7 @@ def test_add_one_product(driver):
     time.sleep(5)
     assert check_name and check_price and check_quan and check_sub_total
 
+
 # TC2
 def test_add_negative_quantity_to_cart(driver):
     # condition
@@ -133,6 +137,7 @@ def test_add_negative_quantity_to_cart(driver):
 
     time.sleep(5)
     assert check_negative
+
 
 # TC3
 def test_add_multiple_product(driver):
@@ -207,6 +212,7 @@ def test_add_multiple_product(driver):
     time.sleep(5)
     assert check and check_total
 
+
 # TC4
 def test_delete_product_in_cart(driver):
     # condition
@@ -215,6 +221,15 @@ def test_delete_product_in_cart(driver):
 
     # main
     driver.find_element(By.XPATH, "//a[@href = '/cart']").click()
+    time.sleep(2)
+
+    cart_tr_elements = driver.find_elements(By.XPATH, "//tbody/tr")
+    quantity_before_delete = len(cart_tr_elements) - 2
+    product_before_delete = []
+    for tr_element in cart_tr_elements[:-2]:
+        td_element = tr_element.find_elements(By.XPATH, ".//td")
+        product_before_delete.append(td_element[0].text)
+
     out_of_product = False
     while not out_of_product:
         try:
@@ -227,7 +242,18 @@ def test_delete_product_in_cart(driver):
             out_of_product = True
 
     time.sleep(5)
-    assert out_of_product
+
+    cart_tr_elements = driver.find_elements(By.XPATH, "//tbody/tr")
+    quantity_after_delete = len(cart_tr_elements)
+
+    print("Số lượng sản phẩm trong cart (trước khi xóa): ", quantity_before_delete)
+    print("Số lượng sản phẩm trong cart (sau khi xóa): ", quantity_after_delete)
+
+    assert quantity_after_delete == 0
+
+
+# pytest -s Test_cart.py::test_delete_product_in_cart
+
 
 # TC5
 def test_use_coupon(driver):
@@ -254,13 +280,14 @@ def test_use_coupon(driver):
     VAT_element = cart_tr_elements[-1].find_elements(By.XPATH, ".//td")[-1]
     total_no_fee = total - float(shipping_charge_element.text[1:]) - float(VAT_element.text[1:])
 
-    check_discount = (total_no_fee * 0.6) == discount
+    check_discount = int(total_no_fee * 0.6) == discount
     check_total_after_discount = (total - discount) == total_discount
 
-    print(f"Check discount: {check_discount}")
-    print(f"Check total after discount: {check_total_after_discount}")
+    print(f"Check discount: {discount} - {check_discount}")
+    print(f"Check total after discount: {total_discount} - {check_total_after_discount}")
     time.sleep(5)
     assert check_discount and check_total_after_discount
+
 
 # TC6
 def test_out_of_stock(driver):
@@ -276,7 +303,8 @@ def test_out_of_stock(driver):
         tr_elements = driver.find_elements(By.XPATH, "//tbody/tr")
         for tr_element in tr_elements:
             try:
-                out_of_stock_element = tr_element.find_element(By.XPATH, ".//p[@class='btn btn-danger' and text()='Out of Stock']")
+                out_of_stock_element = tr_element.find_element(By.XPATH,
+                                                               ".//p[@class='btn btn-danger' and text()='Out of Stock']")
                 if out_of_stock_element:
                     product_name = tr_element.find_element(By.TAG_NAME, "h2").text
                     product_price = tr_element.find_element(By.TAG_NAME, "h4").text[1:]  # Giá tiền
